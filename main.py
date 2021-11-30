@@ -1,5 +1,6 @@
 import sys
 from argparse import ArgumentParser
+# TODO: add logger
 
 
 def day_0(task, file_name):
