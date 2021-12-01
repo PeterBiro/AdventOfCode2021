@@ -17,7 +17,14 @@ def day_0(task, file_name):
 
 def day_1(task, file_name):
     depth = read_list(file_name, int)
-    depth_diff = np.diff(depth)
+
+    if task == 1:
+        depth_diff = np.diff(depth)
+    else:
+        arr = np.array(depth).cumsum()
+        arr[3:] = arr[3:] - arr[:-3]
+        depth_diff = np.diff(arr[2:])
+    
     increasing_steps = sum(x > 0 for x in depth_diff)
     return increasing_steps
 
@@ -36,7 +43,7 @@ def main(raw_args):
         1: day_1
     }
     input_dir = 'inputs'
-    file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}_{args.task}.txt')
+    file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}_1.txt')
     answer = day_map[args.day](args.task, file_path)
     print(answer)
 
