@@ -1,10 +1,25 @@
 import sys
+import os.path as osp
+import numpy as np
 from argparse import ArgumentParser
 # TODO: add logger
 
 
+def read_list(path, ret_type):
+    with open(path, 'r') as f:
+        data = f.readlines()
+    return list(map(ret_type, data))
+
+
 def day_0(task, file_name):
-    print('Be prepared! This time I feel, I am. :)')
+    return 'Be prepared! This time I feel, I am. :)'
+
+
+def day_1(task, file_name):
+    depth = read_list(file_name, int)
+    depth_diff = np.diff(depth)
+    increasing_steps = sum(x > 0 for x in depth_diff)
+    return increasing_steps
 
 
 def main(raw_args):
@@ -17,10 +32,13 @@ def main(raw_args):
     print(f'Day:{args.day:3}, Task:{args.task:2}')
 
     day_map = {
-        0: day_0
+        0: day_0,
+        1: day_1
     }
-
-    day_map[args.day](args.task, args.file)
+    input_dir = 'inputs'
+    file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}_{args.task}.txt')
+    answer = day_map[args.day](args.task, file_path)
+    print(answer)
 
 
 if __name__ == '__main__':
