@@ -79,7 +79,7 @@ def main(raw_args):
         2: day_2
     }
     input_dir = 'inputs'
-    file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}_1.txt')
+    file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}.txt')
     answer = day_map[args.day](args.task, file_path)
     print(answer)
 
