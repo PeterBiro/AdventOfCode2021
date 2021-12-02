@@ -24,9 +24,33 @@ def day_1(task, file_name):
         arr = np.array(depth).cumsum()
         arr[3:] = arr[3:] - arr[:-3]
         depth_diff = np.diff(arr[2:])
-    
+
     increasing_steps = sum(x > 0 for x in depth_diff)
     return increasing_steps
+
+
+def day_2(task, file_name):
+
+    def split_command(c):
+        d, v = c.split()
+        return d, int(v)
+
+    commands = read_list(file_name, str)
+    commands = list(map(lambda x: x.strip(), commands))
+    commands = list(map(split_command, commands))
+
+    pos = {'forward': 0, 'depth': 0}
+    for command in commands:
+        if command[0] == 'forward':
+            pos['forward'] += command[1]
+        elif command[0] == 'down':
+            pos['depth'] += command[1]
+        elif command[0] == 'up':
+            pos['depth'] -= command[1]
+        else:
+            print(f'Unknown command: {command[0]}')
+            raise ValueError
+    return pos['forward'] * pos['depth']
 
 
 def main(raw_args):
@@ -40,7 +64,8 @@ def main(raw_args):
 
     day_map = {
         0: day_0,
-        1: day_1
+        1: day_1,
+        2: day_2
     }
     input_dir = 'inputs'
     file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}_1.txt')
