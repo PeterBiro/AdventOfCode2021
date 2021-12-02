@@ -39,14 +39,25 @@ def day_2(task, file_name):
     commands = list(map(lambda x: x.strip(), commands))
     commands = list(map(split_command, commands))
 
+    is_aim = True if task == 2 else False
+
     pos = {'forward': 0, 'depth': 0}
+    aim = 0
+
     for command in commands:
         if command[0] == 'forward':
             pos['forward'] += command[1]
+            pos['depth'] += aim * command[1] if is_aim else 0
         elif command[0] == 'down':
-            pos['depth'] += command[1]
+            if is_aim:
+                aim += command[1]
+            else:
+                pos['depth'] += command[1]
         elif command[0] == 'up':
-            pos['depth'] -= command[1]
+            if is_aim:
+                aim -= command[1]
+            else:
+                pos['depth'] -= command[1]
         else:
             print(f'Unknown command: {command[0]}')
             raise ValueError
