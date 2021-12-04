@@ -1,6 +1,7 @@
 import sys
 import os.path as osp
 import numpy as np
+from copy import deepcopy
 from argparse import ArgumentParser
 # TODO: add logger
 
@@ -82,14 +83,42 @@ def day_3(task, file_name):
                 gamma += '0'
         return gamma
 
-    data = np.array(read_list(file_name, str, do_strip=True))
-    data = transpose_1d_array(data)
+    def find_most_common(arr, i):
+        counter = 0
+        for num in arr:
+            counter += num[i] == '1'
+        return '1' if counter >= len(arr)/2 else '0'
 
-    gamma = calculate_gamma(data)
-    power = len(gamma)
-    gamma = int(gamma, 2)
-    epsilon = (2**power - 1) - gamma
-    return gamma * epsilon
+    def find_least_common(arr, i):
+        return '0' if find_most_common(arr, i) == '1' else '1'
+
+    data = np.array(read_list(file_name, str, do_strip=True))
+    if task == 1:
+        data = transpose_1d_array(data)
+
+        gamma = calculate_gamma(data)
+        power = len(gamma)
+        gamma = int(gamma, 2)
+        epsilon = (2**power - 1) - gamma
+        return gamma * epsilon
+
+    else:
+        oxygen = read_list(file_name, str, do_strip=True)
+        co2 = read_list(file_name, str, do_strip=True)
+
+        for index in range(len(data)):
+            if len(oxygen) > 1:
+                mc = find_most_common(oxygen, index)
+                oxygen = list(filter(lambda x: x[index] == mc, oxygen))
+            if len(co2) > 1:
+                lc = find_least_common(co2, index)
+                co2 = list(filter(lambda x: x[index] == lc, co2))
+            if len(oxygen) == 1 and len(co2) == 1:
+                break
+
+        o_rating = int(oxygen[0], 2)
+        co2_rating = int(co2[0], 2)
+        return o_rating * co2_rating
 
 
 def main(raw_args):
