@@ -5,10 +5,13 @@ from argparse import ArgumentParser
 # TODO: add logger
 
 
-def read_list(path, ret_type):
+def read_list(path, ret_type, do_strip=False):
     with open(path, 'r') as f:
         data = f.readlines()
-    return list(map(ret_type, data))
+    if do_strip:
+        return list(map(ret_type, map(lambda x: x.strip(), data)))
+    else:
+        return list(map(ret_type, data))
 
 
 def day_0(task, file_name):
@@ -35,8 +38,7 @@ def day_2(task, file_name):
         d, v = c.split()
         return d, int(v)
 
-    commands = read_list(file_name, str)
-    commands = list(map(lambda x: x.strip(), commands))
+    commands = read_list(file_name, str, do_strip=True)
     commands = list(map(split_command, commands))
 
     is_aim = True if task == 2 else False
@@ -64,6 +66,32 @@ def day_2(task, file_name):
     return pos['forward'] * pos['depth']
 
 
+def day_3(task, file_name):
+
+    def transpose_1d_array(np_array):
+        np_array = np.array(list(map(list, np_array)))
+        return np_array.transpose()
+
+    def calculate_gamma(data):
+        gamma = ''
+        length = len(data[0])
+        for element in data:
+            if np.count_nonzero(element == '1') > length/2:
+                gamma += '1'
+            else:
+                gamma += '0'
+        return gamma
+
+    data = np.array(read_list(file_name, str, do_strip=True))
+    data = transpose_1d_array(data)
+
+    gamma = calculate_gamma(data)
+    power = len(gamma)
+    gamma = int(gamma, 2)
+    epsilon = (2**power - 1) - gamma
+    return gamma * epsilon
+
+
 def main(raw_args):
     print('Welcome to the Advent of Code in 2021')
     parser = ArgumentParser()
@@ -76,7 +104,8 @@ def main(raw_args):
     day_map = {
         0: day_0,
         1: day_1,
-        2: day_2
+        2: day_2,
+        3: day_3
     }
     input_dir = 'inputs'
     file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}.txt')
