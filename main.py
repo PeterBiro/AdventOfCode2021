@@ -123,10 +123,6 @@ def day_3(task, file_name):
 
 def day_4(task, file_name):
 
-    class Bingo(object):
-        def __init__(self, boards):
-            self.boards = boards
-
     class Board(object):
         def __init__(self, numbers):
             if len(numbers) != 25:
@@ -171,30 +167,37 @@ def day_4(task, file_name):
         def __repr__(self):
             return str(self.value)
 
+    def load_data(file_name):
+        all_input = read_list(file_name, str, do_strip=True)
+        drawn_numbers = list(map(int, all_input.pop(0).split(',')))
+
+        boards = []
+        temp_list = []
+        for line in all_input[1:]:
+            if line == '':
+                boards.append(Board(temp_list))
+                temp_list = []
+            else:
+                without_strings = filter(lambda x: x != '', line.split(' '))
+                temp_list.extend(list(map(lambda x: int(x), without_strings)))
+        boards.append(Board(temp_list))
+        return drawn_numbers, boards
+
     colorama.init()
 
-    all_input = read_list(file_name, str, do_strip=True)
-    drawn_numbers = list(map(int, all_input.pop(0).split(',')))
-
-    boards = []
-    temp_list = []
-    for line in all_input[1:]:
-        if line == '':
-            boards.append(Board(temp_list))
-            temp_list = []
-        else:
-            without_strings = filter(lambda x: x != '', line.split(' '))
-            temp_list.extend(list(map(lambda x: int(x), without_strings)))
-    boards.append(Board(temp_list))
+    drawn_numbers, boards = load_data(file_name)
 
     winner = None
+    aim = 1 if task == 1 else len(boards)
     for num in drawn_numbers:
         for board in boards:
-            if board.draw_nr(num):
+            if not board.is_bingo() and board.draw_nr(num):
                 winner = board
                 winning_num = num
-                break
-        if winner:
+                aim -= 1
+                if aim == 0:
+                    break
+        if aim == 0:
             break
 
     print(winner)
