@@ -1,7 +1,7 @@
 import sys
 import os.path as osp
 import numpy as np
-from copy import deepcopy
+import colorama
 from argparse import ArgumentParser
 # TODO: add logger
 
@@ -121,6 +121,92 @@ def day_3(task, file_name):
         return o_rating * co2_rating
 
 
+def day_4(task, file_name):
+
+    class Bingo(object):
+        def __init__(self, boards):
+            self.boards = boards
+
+    class Board(object):
+        def __init__(self, numbers):
+            if len(numbers) != 25:
+                print(f'Not right number of elements ({len(numbers)}) in list, to init a board.')
+                print(f'List: {numbers}')
+                raise ValueError
+            self.numbers = []
+            for num in numbers:
+                self.numbers.append(Num(num))
+            self.rows = [0] * 5
+            self.columns = [0] * 5
+
+        def __str__(self):
+            printed_board = ''
+            for i in range(len(self.numbers)):
+                ending = '\n' if i % 5 == 4 else ' '
+                printed_board += f'{self.numbers[i]}{ending}'
+            return printed_board
+
+        def is_bingo(self):
+            return 5 in self.columns or 5 in self.rows
+
+        def draw_nr(self, n):
+            for i, num in enumerate(self.numbers):
+                if n == num.value and not num.drawn:
+                    num.drawn = True
+                    self.rows[i // 5] += 1
+                    self.columns[i % 5] += 1
+            return self.is_bingo()
+
+    class Num(object):
+
+        def __init__(self, n):
+            self.value = n
+            self.drawn = False
+
+        def __str__(self):
+            color_on = colorama.Fore.BLUE if self.drawn else ''
+            color_off = colorama.Fore.RESET if self.drawn else ''
+            return f'{color_on}{self.value:>2d}{color_off}'
+
+        def __repr__(self):
+            return str(self.value)
+
+    colorama.init()
+
+    all_input = read_list(file_name, str, do_strip=True)
+    drawn_numbers = list(map(int, all_input.pop(0).split(',')))
+
+    boards = []
+    temp_list = []
+    for line in all_input[1:]:
+        if line == '':
+            boards.append(Board(temp_list))
+            temp_list = []
+        else:
+            without_strings = filter(lambda x: x != '', line.split(' '))
+            temp_list.extend(list(map(lambda x: int(x), without_strings)))
+    boards.append(Board(temp_list))
+
+    winner = None
+    for num in drawn_numbers:
+        for board in boards:
+            if board.draw_nr(num):
+                winner = board
+                winning_num = num
+                break
+        if winner:
+            break
+
+    print(winner)
+    print(f'last drawn number: {winning_num}')
+
+    board_score = sum(map(lambda x: x.value, filter(lambda x: not x.drawn, winner.numbers)))
+    print(f'board score is: {board_score}')
+
+    colorama.deinit()
+    return board_score * winning_num
+
+
 def main(raw_args):
     print('Welcome to the Advent of Code in 2021')
     parser = ArgumentParser()
@@ -134,7 +220,8 @@ def main(raw_args):
         0: day_0,
         1: day_1,
         2: day_2,
-        3: day_3
+        3: day_3,
+        4: day_4
     }
     input_dir = 'inputs'
     file_path = osp.join(input_dir, args.file if args.file else f'input_{args.day:02d}.txt')
